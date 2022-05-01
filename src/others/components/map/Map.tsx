@@ -6,7 +6,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { Box, Typography } from "@mui/material";
 import { ReactNode, useCallback, useState, useRef } from "react";
 import { INITIAL_UKRAINE_CENTER_VIEW } from '../../constants';
-import { MaxRegionVisibleZoomLevel } from "./RegionsSourceWithLayers";
+import { MaxRegionVisibleZoomLevel } from "./McKinseyRegionsSourceWithLayers";
 
 interface MapProps {
   sourceWithLayer?: ReactNode;
