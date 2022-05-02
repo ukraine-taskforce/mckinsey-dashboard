@@ -1,5 +1,4 @@
-import { useState, useEffect, ReactText } from "react";
-import { useTranslation } from "react-i18next";
+import { useState, ReactText } from "react";
 import Box, { BoxProps } from "@mui/material/Box";
 import Collapse from "@mui/material/Collapse";
 import IconButton from "@mui/material/IconButton";
@@ -10,7 +9,6 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import InfiniteScroll from "react-infinite-scroll-component";
 import ZoomInIcon from "@mui/icons-material/ZoomIn";
 import ZoomOutIcon from "@mui/icons-material/ZoomOut";
 
@@ -46,26 +44,8 @@ export const CollapsibleListItem = ({
   toggleZoomCity,
   ...rest
 }: CollapsibleListItemProps) => {
-  const { t } = useTranslation();
   const [showZoomIcon, setShowZoomIcon] = useState(false);
   const [zoomIcon, setZoomIcon] = useState<"zoomIn" | "zoomOut">("zoomIn");
-  const hiddenItemsCount = hidden.length;
-
-  const offset = 20;
-  const getGirstBatch = (rows: Omit<ListItem, "hidden">[]) => rows.slice(0, offset);
-
-  const [displayedRows, setDisplayedRows] = useState<Omit<ListItem, "hidden">[]>([]);
-
-  const hasDisplayedAll = displayedRows.length === hiddenItemsCount;
-
-  const addMoreRows = () => {
-    const nextRows = hidden.slice(displayedRows.length, displayedRows.length + offset);
-    setDisplayedRows([...displayedRows, ...nextRows]);
-  };
-
-  useEffect(() => {
-    setDisplayedRows(getGirstBatch(hidden));
-  }, [hidden]);
 
   const onTableRowMouseEnter = () => {
     if (coordinates) {
@@ -126,37 +106,27 @@ export const CollapsibleListItem = ({
           {/* TODO: open should be in lighter gray */}
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
-              <InfiniteScroll
-                dataLength={displayedRows.length}
-                next={() => addMoreRows()}
-                hasMore={!hasDisplayedAll}
-                loader={<Typography variant="body2">{t("loading")}...</Typography>}
-                scrollableTarget="scrollableDiv"
-                // TODO: for overflowing tables add a "back to top" button
-                // endMessage={<> </>}
-              >
-                <Table size="small" aria-label="tbd">
-                  <TableBody>
-                    {displayedRows.map(({ name, value }, index, arr) => {
-                      const isLast = hiddenItemsCount - 1 === index;
-                      return (
-                        <TableRow key={`${name}-${index}`} sx={{ "& > *": { borderBottom: "unset", paddingX: 1 } }}>
-                          <TableCell component="th" scope="row" sx={{ borderBottom: isLast ? "none" : undefined }}>
-                            <Typography variant="subtitle2" gutterBottom component="div" sx={{ margin: 0 }}>
-                              {name}
-                            </Typography>
-                          </TableCell>
-                          <TableCell align="right" sx={{ borderBottom: isLast ? "none" : undefined }}>
-                            <Typography variant="subtitle2" gutterBottom component="div" sx={{ margin: 0 }}>
-                              {value}
-                            </Typography>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </InfiniteScroll>
+              <Table size="small" aria-label="tbd">
+                <TableBody>
+                  {hidden.map(({ name, value }, index, arr) => {
+                    const isLast = hidden.length - 1 === index;
+                    return (
+                      <TableRow key={`${name}-${index}`} sx={{ "& > *": { borderBottom: "unset", paddingX: 1 } }}>
+                        <TableCell component="th" scope="row" sx={{ borderBottom: isLast ? "none" : undefined }}>
+                          <Typography variant="subtitle2" gutterBottom component="div" sx={{ margin: 0 }}>
+                            {name}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right" sx={{ borderBottom: isLast ? "none" : undefined }}>
+                          <Typography variant="subtitle2" gutterBottom component="div" sx={{ margin: 0 }}>
+                            {value}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
             </Box>
           </Collapse>
         </TableCell>

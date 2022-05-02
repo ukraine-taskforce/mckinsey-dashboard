@@ -10,6 +10,7 @@ export type FilterItem = {
   id: FilterItemId;
   selected: boolean;
   text: string;
+  selectable: boolean;
 };
 
 export type Filter = {

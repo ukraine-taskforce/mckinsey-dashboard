@@ -16,6 +16,7 @@ import { FunctionComponent, useRef, useState, useMemo } from "react";
 import { KeyboardArrowDown as ArrowDown, KeyboardArrowUp as ArrowUp, CheckCircle, CircleOutlined } from "@mui/icons-material";
 import { FilterItem, FilterItemId, FilterName } from "../../contexts/filter";
 import { ListWithSearch } from "./ListWithSearch";
+import styles from "./FilterDropdown.module.css";
 
 type FilterDropdownProps = {
   hasSearch?: boolean;
@@ -152,12 +153,14 @@ export const FilterDropdown: FunctionComponent<FilterDropdownProps> = ({
                     </Button>
                   </ListItem>
                 )}
-                {filterItems.map(({ id, text, selected }) => (
+                {filterItems.map(({ id, text, selected, selectable }) => (
                   <ListItem key={id}>
-                    <ListItemButton onClick={clickHandler(id, selected)}>
+                    {selectable && <ListItemButton onClick={clickHandler(id, selected)}>
                       <ListItemText>{text}</ListItemText>
                       {checkboxListItemIcon(selected)}
-                    </ListItemButton>
+                     </ListItemButton>
+                    }
+                    {!selectable && <ListItemText className={styles.notClickable}>{text}</ListItemText>}
                   </ListItem>
                 ))}
               </List>
