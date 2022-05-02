@@ -11,34 +11,14 @@ import { CollapsibleTable } from "../../others/components/CollapsibleList";
 import { RegionsSourceWithLayers } from "../../others/components/map/McKinseyRegionsSourceWithLayers";
 import { ukrAdm1 } from "../../others/fixtures/ukrAdm1";
 import { FilterItem, useFilter } from "../../others/contexts/filter";
-
-type Category = {
-  id: string;
-  name: string;
-  measure: string;
-};
-
-const categories: { [id: string]: Category } = {
-  "water": {
-    id: "water",
-    name: "Water",
-    measure: "L",
-  },
-  "rice": {
-    id: "rice",
-    name: "Rice",
-    measure: "kg",
-  },
-  "bread": {
-    id: "bread",
-    name: "Bread",
-    measure: "kg",
-  }
-};
+import { categorySelectLanguage, getCategoryMap } from "../../others/fixtures/categories";
 
 export function McKinsey() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { addFilter, getActiveFilterItems } = useFilter();
+
+  const categories = useMemo(() => categorySelectLanguage(i18n.language), [i18n.language]);
+  const categoriesMap = useMemo(() => getCategoryMap(categories), [categories]);
 
   useEffect(() => {
     document.title = "McKinsey";
@@ -47,11 +27,11 @@ export function McKinsey() {
   useEffect(() => {
     addFilter({
       filterName: "Categories",
-      filterItems: Object.values(categories).map((category): FilterItem => ({ id: category.id, selected: false, text: category.name })),
+      filterItems: categories.map((category): FilterItem => ({ id: category.id, selected: false, text: category.name, selectable: category.parent !== "" })),
       active: false,
       singleValueFilter: false,
     });
-  }, [addFilter]);
+  }, [addFilter, categories]);
  
   const activeCategoryFilter = getActiveFilterItems("Categories") as string[]; 
 
@@ -61,20 +41,19 @@ export function McKinsey() {
     const priorityDict: { [id: string]: number } = {};
     for (const region of regions) {
       priorityDict[region] = Math.random();
-      const cats = Object.keys(categories);
-      for (const c of cats) {
-        if (activeCategoryFilter.length && !activeCategoryFilter.includes(c)) {
+      for (const c of categories) {
+        if (activeCategoryFilter.length && !activeCategoryFilter.includes(c.id)) {
           continue;
         }
         data.push({
           oblast_name: region,
-          category: c,
+          category: c.id,
           amount: Math.floor(Math.random() * 100),
         });
       }
     }
     return { data, priorityDict };
-  }, []);
+  }, [categories]);
   const categoriesAsString = JSON.stringify(activeCategoryFilter);
   const { data, priorityDict } = useMemo(() => generateFakeData(JSON.parse(categoriesAsString)), [generateFakeData, categoriesAsString]);
   const groupedByOblast = groupBy(data, "oblast_name");
@@ -89,7 +68,7 @@ export function McKinsey() {
   const tableData = groupedByOblastWithTotal.map(({ oblast_name, total, requests }: any) => {
     var description = "";
     requests.forEach((req: any) => {
-      description = `${description}\n${categories[req.category].name} (${categories[req.category].measure}): ${req.amount}`;
+      description = `${description}\n${categoriesMap[req.category].name}: ${req.amount}`;
     });
     descMap[oblast_name] = description;
     totalMap[oblast_name] = total;
@@ -133,7 +112,7 @@ export function McKinsey() {
           coordinates: undefined,
           hidden: row.hidden
             .map(({ name, value }) => ({
-              name: `${categories[name].name} (${categories[name].measure})`,
+              name: `${categoriesMap[name].name}`,
               value: value,
             }))
             //.sort((a, b) => Number(b.value) - Number(a.value)),
