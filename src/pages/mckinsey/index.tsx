@@ -56,7 +56,7 @@ export function McKinsey() {
       priorityDict[region] = Math.random();
     }
     return { data, priorityDict };
-  }, [categories]);
+  }, []);
   const categoriesAsString = JSON.stringify(activeCategoryFilter);
   const { data, priorityDict } = useMemo(() => generateFakeData(JSON.parse(categoriesAsString)), [generateFakeData, categoriesAsString]);
   const groupedByOblast = groupBy(data, "oblast_name");
