@@ -138,7 +138,7 @@ export const categoriesRaw: CategoryRaw[] = [
  {
    "parent": "Medicine",
    "name_en": "NSARs: Painkillers and Antipyretics",
-   "name_uk": "NSAR: знеболюючі та жарознижуючі\nNSAR: знеболюючі та жарознижуючі"
+   "name_uk": "NSAR: знеболюючі та жарознижуючі"
  },
  {
    "parent": "Medicine",

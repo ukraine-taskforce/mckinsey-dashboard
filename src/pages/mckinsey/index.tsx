@@ -12,6 +12,7 @@ import { RegionsSourceWithLayers } from "../../others/components/map/McKinseyReg
 import { ukrAdm1 } from "../../others/fixtures/ukrAdm1";
 import { FilterItem, useFilter } from "../../others/contexts/filter";
 import { categorySelectLanguage, getCategoryMap } from "../../others/fixtures/categories";
+import { fakeRequests } from "../../others/fixtures/fakedata";
 
 export function McKinsey() {
   const { t, i18n } = useTranslation();
@@ -37,20 +38,22 @@ export function McKinsey() {
 
   const generateFakeData = useCallback((activeCategoryFilter) => {
     const regions: string[] = ['Kherson Oblast', 'Volyn Oblast', 'Rivne Oblast', 'Zhytomyr Oblast', 'Kyiv Oblast', 'Chernihiv Oblast', 'Sumy Oblast', 'Kharkiv Oblast', 'Luhansk Oblast', 'Donetsk Oblast', 'Zaporizhia Oblast', 'Lviv Oblast', 'Ivano-Frankivsk Oblast', 'Zakarpattia Oblast', 'Ternopil Oblast', 'Chernivtsi Oblast', 'Odessa Oblast', 'Mykolaiv Oblast', 'Autonomous Republic of Crimea', 'Vinnytsia Oblast', 'Khmelnytskyi Oblast', 'Cherkasy Oblast', 'Poltava Oblast', 'Dnipropetrovsk Oblast', 'Kirovohrad Oblast', 'Kyiv', 'Sevastopol'];
-    const data = [];
+    const data: any[] = [];
+    for (const x of fakeRequests) {
+      if (x.oblast_name === 'city Kiyv') {
+        x.oblast_name = 'Kyiv';
+      }
+      if (x.oblast_name === 'Zaporizhzhia Oblast') {
+        x.oblast_name = 'Zaporizhia Oblast';
+      }
+      if (activeCategoryFilter.length && !activeCategoryFilter.includes(x.category)) {
+        continue;
+      }
+      data.push(x);
+    }
     const priorityDict: { [id: string]: number } = {};
     for (const region of regions) {
       priorityDict[region] = Math.random();
-      for (const c of categories) {
-        if (activeCategoryFilter.length && !activeCategoryFilter.includes(c.id)) {
-          continue;
-        }
-        data.push({
-          oblast_name: region,
-          category: c.id,
-          amount: Math.floor(Math.random() * 100),
-        });
-      }
     }
     return { data, priorityDict };
   }, [categories]);
@@ -92,7 +95,8 @@ export function McKinsey() {
       region.properties = Object.assign({}, r.properties);
       region.properties.normalized_amount = priorityDict[r.properties.shapeName];
       if (activeCategoryFilter.length) {
-        region.properties.amount = totalMap[r.properties.shapeName];
+        
+        region.properties.amount = r.properties.shapeName in totalMap ? totalMap[r.properties.shapeName] : 0;
         region.properties.normalized_amount = region.properties.amount / maxAmount;
       }
       region.properties.description = descMap[r.properties.shapeName];
